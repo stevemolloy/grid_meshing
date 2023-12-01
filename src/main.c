@@ -9,7 +9,7 @@
 #define WIDTH 800
 #define HEIGHT 800
 #define PNG_COMPONENTS 4
-#define MAX_DIMENSION 30
+#define MAX_DIMENSION 5
 
 int main(void) {
   // The geometry to mesh
@@ -29,9 +29,9 @@ int main(void) {
 
   float dt = 0.001;
   points[0].z = 100;
-  for (size_t i=0; i<500; i++) {
+  for (size_t i=0; i<2000; i++) {
     timestep_sim(springs, num_springs, points, num_points, dt);
-    printf("points[0].z = %f\n", points[0].z);
+    // printf("points[0].z = %f\n", points[0].z);
   }
 
   // Display results graphically with olivec
@@ -39,8 +39,13 @@ int main(void) {
   Olivec_Canvas oc = olivec_canvas(pixels, WIDTH, HEIGHT, WIDTH);
   olivec_fill(oc, BACKGROUND_COLOUR);
   olivec_circle(oc, (int)circle.x, (int)circle.y, (int)circle.radius, BLUE);
-  for (size_t i=0; i<num_points; i++) draw_point(oc, points[i].x, points[i].y, RED);
-  for (size_t i=0; i<num_springs; i++) draw_spring(oc, springs[i], WHITE, i);
+  for (size_t i=0; i<num_points; i++) {
+    // r -10.....10
+    int r = (int)((points[i].z+10) * 255 / 20);
+    // printf("r=%d   ", r);
+    draw_point(oc, points[i].x, points[i].y, OLIVEC_RGBA(r, 0x10, 0x10, 0xFF));
+  }
+  // for (size_t i=0; i<num_springs; i++) draw_spring(oc, springs[i], WHITE, i);
 
   // Create PNG output
   const char *output_filename = "testing.png";

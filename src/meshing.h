@@ -15,7 +15,7 @@
 #define WHITE 0xFFFFFFFF
 
 #define draw_point(oc, x, y, colour) \
-  olivec_circle((oc), (x), (y), 5, (colour))
+  olivec_circle((oc), (x), (y), 3, (colour))
 
 typedef struct {
   double x;
