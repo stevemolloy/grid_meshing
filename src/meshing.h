@@ -26,11 +26,17 @@ typedef struct {
 typedef struct {
   double x;
   double y;
+  double z;
+  double v_z;
+  double dz;
+  double dv_z;
+  double mass;
 } Point;
 
 typedef struct {
   Point *pt1;
   Point *pt2;
+  double k;
 } Spring;
 
 size_t first_ring_point(size_t ring_num);

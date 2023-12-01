@@ -26,11 +26,20 @@ Point get_spring_centre(Spring spring) {
   return result;
 }
 
+Point new_point(float mass) {
+  Point result = {0};
+  result.mass = mass;
+  return result;
+}
+
 size_t find_points(Circle circle, Point *points, size_t max_dim) {
   size_t pt_ind = 0;
   size_t num_rings = ceil(circle.radius / max_dim);
 
-  points[pt_ind++] = (Point){.x=circle.x, .y=circle.y};
+  points[pt_ind] = new_point(1.0);
+  points[pt_ind].x=circle.x;
+  points[pt_ind].y=circle.y;
+  pt_ind++;
 
   for (size_t ring=1; ring<num_rings+1; ring++) {
     double angle_start = 0.0f;
@@ -38,10 +47,9 @@ size_t find_points(Circle circle, Point *points, size_t max_dim) {
     for (size_t pt=0; pt<ring*6; pt++) {
       double angle_deg = angle_start + pt * angle_step;
       double angle_rad = angle_deg * PI / 180.0;
-      points[pt_ind] = (Point){
-        .x = circle.x + ring * (circle.radius / num_rings) * cos(angle_rad),
-        .y = circle.y + ring * (circle.radius / num_rings) * sin(angle_rad),
-      };
+      points[pt_ind] = new_point(1.0);
+      points[pt_ind].x = circle.x + ring * (circle.radius / num_rings) * cos(angle_rad);
+      points[pt_ind].y = circle.y + ring * (circle.radius / num_rings) * sin(angle_rad);
       pt_ind++;
     }
   }
@@ -49,17 +57,30 @@ size_t find_points(Circle circle, Point *points, size_t max_dim) {
   return pt_ind;
 }
 
+Spring new_spring(float k) {
+  Spring result = {0};
+  result.k = k;
+  return result;
+}
+
 size_t find_springs(Circle circle, Spring *springs, Point *points, size_t max_dim) {
+  float default_k = 100.0;
   size_t spring_ctr = 0;
   size_t num_rings = ceil(circle.radius / max_dim);
 
   for (size_t ring=1; ring<=num_rings; ring++) {
     size_t first = first_ring_point(ring);
     size_t last = last_ring_point(ring);
-    springs[spring_ctr++] = (Spring) { .pt1 = &points[first], .pt2 = &points[last] };
+    springs[spring_ctr] = new_spring(default_k);
+    springs[spring_ctr].pt1 = &points[first];
+    springs[spring_ctr].pt2 = &points[last];
+    spring_ctr++;
     for (size_t pt=first; pt<=last; pt++) {
       if (pt!=first) {
-        springs[spring_ctr++] = (Spring) { .pt1 = &points[pt], .pt2 = &points[pt-1] };
+        springs[spring_ctr] = new_spring(default_k);
+        springs[spring_ctr].pt1 = &points[pt];
+        springs[spring_ctr].pt2 = &points[pt-1];
+        spring_ctr++;
       }
     }
   }
@@ -68,7 +89,10 @@ size_t find_springs(Circle circle, Spring *springs, Point *points, size_t max_di
   for (size_t ring=0; ring<num_rings; ring++) {
     if (ring==0) {
       for (size_t i=0; i<6; i++) {
-        springs[spring_ctr++] = (Spring) { .pt1 = &points[0], .pt2 = &points[i+1] };
+        springs[spring_ctr] = new_spring(default_k);
+        springs[spring_ctr].pt1 = &points[0];
+        springs[spring_ctr].pt2 = &points[i+1];
+        spring_ctr++;
       }
       continue;
     }
@@ -82,16 +106,25 @@ size_t find_springs(Circle circle, Spring *springs, Point *points, size_t max_di
       start = first>last ? first_ring_point(ring) : first;
       end = first+pts_in_ring+extra_step;
 
-      springs[spring_ctr++] = (Spring) { .pt1 = &points[start], .pt2 = &points[end] };
+      springs[spring_ctr] = new_spring(default_k);
+      springs[spring_ctr].pt1 = &points[start];
+      springs[spring_ctr].pt2 = &points[end];
+      spring_ctr++;
       for (size_t j=0; j<quads_per_triangle; j++) {
 
         end++;
-        springs[spring_ctr++] = (Spring) { .pt1 = &points[start], .pt2 = &points[end] };
+        springs[spring_ctr] = new_spring(default_k);
+        springs[spring_ctr].pt1 = &points[start];
+        springs[spring_ctr].pt2 = &points[end];
+        spring_ctr++;
 
         first++;
         start = first>last ? first_ring_point(ring) : first;
 
-        springs[spring_ctr++] = (Spring) { .pt1 = &points[start], .pt2 = &points[end] };
+        springs[spring_ctr] = new_spring(default_k);
+        springs[spring_ctr].pt1 = &points[start];
+        springs[spring_ctr].pt2 = &points[end];
+        spring_ctr++;
       }
       extra_step++;
     }

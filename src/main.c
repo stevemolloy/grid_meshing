@@ -4,6 +4,7 @@
 #include "stb_image_write.h"
 
 #include "meshing.h"
+#include "sim.h"
 
 #define WIDTH 800
 #define HEIGHT 800
@@ -25,6 +26,13 @@ int main(void) {
   // MESHING
   find_points(circle, points, MAX_DIMENSION);
   find_springs(circle, springs, points, MAX_DIMENSION);
+
+  float dt = 0.001;
+  points[0].z = 100;
+  for (size_t i=0; i<500; i++) {
+    timestep_sim(springs, num_springs, points, num_points, dt);
+    printf("points[0].z = %f\n", points[0].z);
+  }
 
   // Display results graphically with olivec
   uint32_t *pixels = calloc(WIDTH*HEIGHT, sizeof(uint32_t));
